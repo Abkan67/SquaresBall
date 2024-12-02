@@ -1,0 +1,16 @@
+{
+    "name": "Squares",
+    "version": "1.0.0",
+    "description": "SQUAAR",
+    "manifest_version": 3,
+    "author": "Abhitej Kanuri",
+    "action":{
+        "default_popup": "index.html",
+        "default_title": "Squared"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+          "id": "extension@xScruffers.github.com"
+        }
+      }
+}
