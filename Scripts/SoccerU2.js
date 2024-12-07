@@ -17,21 +17,21 @@ const ceilingheight=1000;
 let winnerMessage;
 
 //Sizes (l, w, r) are 40
-const ballsize = 40;
-const objwidth=40; const objlength=40;
-const obj2width=40; const obj2length=40;
+const ballsize = 25;
+const objwidth=30; const objlength=30;
+const obj2width=30; const obj2length=30;
 const Xspeed=0.6; //0.6
-const turnSpeed=Math.PI/8; //PI/8
+const turnSpeed=Math.PI*1.5/8; //PI/8
 const Yspeed=2.4; //2.4
 world.gravity.y=4.0; //4.0
-const restitution = 1.1;//1.1
-const ballRestitution = 0.25;//0.95
-const friction = 0.0;//2.0
-const ballDensity = 0.00043 * Math.pow(40/ballsize, 2);//0.00043
-const blockDensity = 0.001 * 1600/(objwidth*objlength);//0.001
+const restitution = 1.0;//1.1
+const ballRestitution = 0.05;//0.95
+const friction = 0.05;//2.0
+const ballDensity = 0.00043  * Math.pow(40/ballsize, 2);//0.00043
+const blockDensity = 0.001;//0.001
 const loss=0.0;//0.0
-const windForce = 1 * world.gravity.y/4.0;//1
-const windChangeWithY = 1.3;//1
+const windForce = 1.45*world.gravity.y/4;//1
+const windChangeWithY = 0.3;//1
 
 
 
@@ -44,7 +44,7 @@ function boxMove() {
   } 
   if(player1Inputs.up){
     Body.setAngularVelocity(obj, turnSpeed);
-    Body.setVelocity(obj, {x:obj.velocity.x, y: obj.velocity.y-Yspeed});
+//    Body.setVelocity(obj, {x:obj.velocity.x, y: obj.velocity.y-Yspeed});
   }
   if (!player1Inputs.down) {
     if(player1Inputs.direction=="left"){
@@ -63,7 +63,7 @@ function boxMove() {
   } 
   if(player2Inputs.up){
     Body.setAngularVelocity(obj2, -turnSpeed);
-    Body.setVelocity(obj2, {x:obj2.velocity.x, y: obj2.velocity.y-Yspeed});
+//    Body.setVelocity(obj2, {x:obj2.velocity.x, y: obj2.velocity.y-Yspeed});
   }
   if(!player2Inputs.down) {
     if(player2Inputs.direction=="left"){
