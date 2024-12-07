@@ -3,8 +3,7 @@ let logo; //Logo is 57*11 pixels
 
 //Handling Menu
 function preload() {
-	logo = new Image();
-	logo.src = "assets/Logo.png";
+	logo = document.getElementById("gameLogo");
 }
 
 let menuSelection = 0;
