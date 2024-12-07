@@ -32,7 +32,7 @@ const blockDensity = 0.001 * 1600/(objwidth*objlength);//0.001
 const loss=0.0;//0.0
 const windForce = 1 * world.gravity.y/4.0;//1
 const windChangeWithY = 1.3;//1
-
+//Say you get 10 seconds of frozen and then you have to touch the ground to regain it
 
 
 function boxMove() {
