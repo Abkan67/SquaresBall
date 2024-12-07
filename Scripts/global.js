@@ -10,7 +10,7 @@ function preload() {
 let menuSelection = 0;
 let menuEvents = [
 	function(){reset(); gameState = "play";},//for playing the game 
-	function(){gameState = "options";optionsSelection = 0;}, //for going to options
+	function(){gameState = "controls";controlsSelection = 0;}, //for going to controls
 ]
 function drawMenu() {
 	//To get past CORS
@@ -20,24 +20,61 @@ function drawMenu() {
 		fill(255,255,255);
 		textAlign(CENTER);
 		text(">".repeat(menuSelection==0?1:0) + "PLAY GAME" + "<".repeat(menuSelection==0?1:0), 400, 220);
-		text(">".repeat(menuSelection==1?1:0) + "OPTIONS" + "<".repeat(menuSelection==1?1:0), 400, 320);
+		text(">".repeat(menuSelection==1?1:0) + "CONTROLS" + "<".repeat(menuSelection==1?1:0), 400, 320);
 	pop();
 }
 
-let optionsSelection = 0;
-function drawOptions() {
-	var key = Object.keys(inputKeys)[optionsSelection];
+let controlsSelection = 0;
+function drawControls() {
+	var key = Object.keys(inputKeys)[controlsSelection];
 	push();
-		textSize(100);
+		textSize(40);
 		fill(200,200,200);
 		textAlign(RIGHT);
-		text(key, 400,220);
-		rectMode()
-		rect(400,220,80,80);
-		fill(225,225,225);
-		textAlign(LEFT)
-		text(inputKeys[key], 400,220)
+		text(formatKey(key), 400,220);;
+		textAlign(CENTER)
+		rectMode(CENTER);
+		rect(500,180,120,120);
+		fill(225,225,225)
+		textSize(30);
+		textAlign(CENTER)
+		fill(0,0,0)
+		text(formatKeyValue(inputKeys[key].toUpperCase()), 500,195)
 	pop();
+}
+let controlsChangeAnimationFrame = 0;
+function drawControlsChange() {
+	var key = Object.keys(inputKeys)[controlsSelection];
+	controlsChangeAnimationFrame = (controlsChangeAnimationFrame + 1) % 90;
+	push();
+		textSize(40);
+		fill(200,200,200);
+		textAlign(RIGHT);
+		text(formatKey(key), 400,220);;
+		fill(`rgba(200, 200, 200, ${Math.sin(((controlsChangeAnimationFrame + 45) * Math.PI / 180))})`);
+		rectMode(CENTER);
+		rect(500,180,120,120);
+	pop();
+}
+
+function formatKeyValue(value) {
+	switch(value) {
+		case "ArrowDown": return "↓";
+		case "ArrowUp": return "↑";
+		case "ArrowLeft": return "←";
+		case "ArrowRight": return "→";
+		default: return value;
+	}
+}
+function keyPermissibleAsControl(key) {
+	if(key == "Enter" || key == "Escape") {return false;}
+	for(inputKey in Object.keys(inputKeys)) {
+		if(inputKey != Object.keys(inputKeys)[controlsSelection] && inputKey == key) {return false;}
+	}
+	return true;
+}
+function formatKey(key) {
+	return ((key.charAt(key.length-1)=="1" ? "Green ":"Blue ")+(key.substring(0, key.length-1))).toUpperCase();
 }
 
 //Handing Gameplay
@@ -95,10 +132,11 @@ function handleKeyDown(e){
 	if(gameState=="menu") {
 		if(e.key == "ArrowDown") {menuSelection = (menuSelection + 1) % menuEvents.length}
 		if(e.key == "ArrowUp") {menuSelection = (menuSelection - 1 + menuEvents.length) % menuEvents.length}
-		if(e.key == "Enter") {menuEvents[menuSelection]();}
 	}
-	if (gameState == "options") {
-		if(e.key == "Escape") {menuSelection = 0; gameState = "menu";}
+	if(gameState=="controls"){
+		if(e.key == "ArrowDown") {controlsSelection = (controlsSelection + 1) % Object.keys(inputKeys).length; }
+		if(e.key == "ArrowUp") {controlsSelection = (controlsSelection + Object.keys(inputKeys).length - 1) % Object.keys(inputKeys).length; }
+		if(e.key == "Enter") {gameState = "controlsChange";}
 	}
 }
 function handleKeyUp(e) {
@@ -113,6 +151,17 @@ function handleKeyUp(e) {
 		if(e.key.toUpperCase() == inputKeys.up2.toUpperCase()) {player2Inputs.up = false;}
 		if(e.key.toUpperCase() == inputKeys.right2.toUpperCase() && player2Inputs.direction=="right") {player2Inputs.direction = "none";}
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = false;}
+	}
+	if(gameState=="menu") {
+		if(e.key == "Enter") {menuEvents[menuSelection]();}
+	}
+	if (gameState == "controls") {
+		if(e.key == "Escape") {menuSelection = 0; gameState = "menu";}
+	}
+	if (gameState == "controlsChange") {
+		if(keyPermissibleAsControl(e.key)) {
+			inputKeys[Object.keys(inputKeys)[controlsSelection]] = e.key.toUpperCase(); gameState = "controls";
+		}
 	}
 }
 
