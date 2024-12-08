@@ -49,7 +49,7 @@ function drawControlsChange() {
 		textSize(40);
 		fill(200,200,200);
 		textAlign(RIGHT);
-		text(formatKey(key), 400,220);;
+		text(formatKeyValue(key), 400,220);;
 		fill(`rgba(200, 200, 200, ${Math.sin(((controlsChangeAnimationFrame + 45) * Math.PI / 180))})`);
 		rectMode(CENTER);
 		rect(500,180,120,120);
@@ -58,17 +58,17 @@ function drawControlsChange() {
 
 function formatKeyValue(value) {
 	switch(value) {
-		case "ArrowDown": return "↓";
-		case "ArrowUp": return "↑";
-		case "ArrowLeft": return "←";
-		case "ArrowRight": return "→";
+		case "ARROWDOWN": return "↓";
+		case "ARROWUP": return "↑";
+		case "ARROWLEFT": return "←";
+		case "ARROWRIGHT": return "→";
 		default: return value;
 	}
 }
 function keyPermissibleAsControl(key) {
 	if(key == "Enter" || key == "Escape") {return false;}
 	for(inputKey in Object.keys(inputKeys)) {
-		if(inputKey != Object.keys(inputKeys)[controlsSelection] && inputKey == key) {return false;}
+		if(inputKey != controlsSelection && inputKeys[Object.keys(inputKeys)[inputKey]].toUpperCase() == key.toUpperCase()) {return false;}
 	}
 	return true;
 }
