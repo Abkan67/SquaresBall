@@ -6,6 +6,8 @@ const Constraint = Matter.Constraint;
 
 let blueWins = 0;
 let greenWins = 0;
+let obj1StaticTimer;
+let obj2StaticTimer;
 
 const engine = Engine.create();
 const world = engine.world;
@@ -33,15 +35,19 @@ const loss=0.0;//0.0
 const windForce = 1 * world.gravity.y/4.0;//1
 const windChangeWithY = 1.3;//1
 //Say you get 10 seconds of frozen and then you have to touch the ground to regain it
+const maxStaticTime = 100;
 
 
 function boxMove() {
-  if (!obj.isStatic && player1Inputs.down) {
+  if (!obj.isStatic && player1Inputs.down && obj1StaticTimer>=0) {
     Body.setStatic(obj, true);
-  } else if(!player1Inputs.down && obj.isStatic) {
+  } else if((!player1Inputs.down||obj1StaticTimer<0) && obj.isStatic) {
     Body.setStatic(obj, false); obj.restitution=restitution;
     obj.friction=friction; Body.setDensity(obj,blockDensity); Body.setVelocity(obj, {x: 0, y: 0});
-  } 
+  }
+  if(obj.isStatic) {obj1StaticTimer--;}
+  if(Matter.Collision.collides(ground,obj)) {obj1StaticTimer = maxStaticTime;}
+  Matter.Events
   if(player1Inputs.up){
     Body.setAngularVelocity(obj, turnSpeed);
     Body.setVelocity(obj, {x:obj.velocity.x, y: obj.velocity.y-Yspeed});
@@ -55,12 +61,14 @@ function boxMove() {
     } 
   }
 
-  if (!obj2.isStatic && player2Inputs.down) {
+  if (!obj2.isStatic && player2Inputs.down && obj2StaticTimer>=0) {
     Body.setStatic(obj2, true);
-  } else if(!player2Inputs.down && obj2.isStatic) {
+  } else if((!player2Inputs.down||obj2StaticTimer<0) && obj2.isStatic) {
     Body.setStatic(obj2, false); obj2.restitution=restitution;
     obj2.friction=friction; Body.setDensity(obj2,blockDensity); Body.setVelocity(obj2, {x: 0, y: 0});
   } 
+  if(obj2.isStatic) {obj2StaticTimer--;}
+  if(Matter.Collision.collides(ground,obj2)) {obj2StaticTimer = maxStaticTime;}
   if(player2Inputs.up){
     Body.setAngularVelocity(obj2, -turnSpeed);
     Body.setVelocity(obj2, {x:obj2.velocity.x, y: obj2.velocity.y-Yspeed});
@@ -97,6 +105,8 @@ function setup() {
 
   player1Inputs.direction="none"; player1Inputs.down=false; player1Inputs.up = false;
   player2Inputs.direction="none"; player2Inputs.down=false; player2Inputs.up = false;
+  obj2StaticTimer = maxStaticTime;  obj1StaticTimer = maxStaticTime;
+
 
   winnerMessage="";
 }
@@ -160,7 +170,7 @@ function drawSquares() {
   push();
     translate(obj2.position.x, obj2.position.y);
     rotate(obj2.angle);
-    fill(0,0,255);
+    fill(`rgba(0,0,255,${(obj2StaticTimer+maxStaticTime)/(2*maxStaticTime)})`);
     rectMode(CENTER);
     rect(0,0,obj2width,obj2length);
   pop();
@@ -169,7 +179,7 @@ function drawSquares() {
   push();
     translate(obj.position.x, obj.position.y);
     rotate(obj.angle);
-    fill(0,255,0);
+    fill(`rgba(0,255,0,${(obj1StaticTimer+maxStaticTime)/(2*maxStaticTime)})`);
     rectMode(CENTER);
     rect(0, 0, objwidth, objlength);
   pop();
