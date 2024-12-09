@@ -27,6 +27,14 @@ let controlsSelection = 0;
 function drawControls() {
 	var key = Object.keys(inputKeys)[controlsSelection];
 	push();
+		fill(255,255,255);
+		rect(0,0,120,80);
+		fill(0,0,0);
+		textSize(20);
+		textAlign(CENTER);
+		text("esc",30,25);
+	pop();
+	push();
 		textSize(40);
 		fill(200,200,200);
 		textAlign(RIGHT);
@@ -46,10 +54,18 @@ function drawControlsChange() {
 	var key = Object.keys(inputKeys)[controlsSelection];
 	controlsChangeAnimationFrame = (controlsChangeAnimationFrame + 1) % 90;
 	push();
+		fill(255,255,255);
+		rect(0,0,120,80);
+		fill(0,0,0);
+		textSize(20);
+		textAlign(CENTER);
+		text("esc",30,25);
+	pop();
+	push();
 		textSize(40);
 		fill(200,200,200);
 		textAlign(RIGHT);
-		text(formatKeyValue(key), 400,220);;
+		text(formatKey(key), 400,220);;
 		fill(`rgba(200, 200, 200, ${Math.sin(((controlsChangeAnimationFrame + 45) * Math.PI / 180))})`);
 		rectMode(CENTER);
 		rect(500,180,120,120);
@@ -116,6 +132,9 @@ function handleKeyDown(e){
 	if(gameState == "scored") {
 		if(e.key==" "){reset(); gameState="play";}
 	}
+	if(gameState == "gameend") {
+		if(e.key==" "){reset(); gameState="menu"; blueWins = 0; greenWins = 0;}
+	}
 	if(gameState == "play"){
 		//Player 1
 		if(e.key.toUpperCase() == inputKeys.left1.toUpperCase()) {player1Inputs.direction = "left";}
@@ -128,18 +147,18 @@ function handleKeyDown(e){
 		if(e.key.toUpperCase() == inputKeys.right2.toUpperCase()) {player2Inputs.direction = "right";}
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = true;}
 	}
-	if(gameState=="menu") {
+	if(gameState == "menu") {
 		if(e.key == "ArrowDown") {menuSelection = (menuSelection + 1) % menuEvents.length}
 		if(e.key == "ArrowUp") {menuSelection = (menuSelection - 1 + menuEvents.length) % menuEvents.length}
 	}
-	if(gameState=="controls"){
+	if(gameState == "controls"){
 		if(e.key == "ArrowDown") {controlsSelection = (controlsSelection + 1) % Object.keys(inputKeys).length; }
 		if(e.key == "ArrowUp") {controlsSelection = (controlsSelection + Object.keys(inputKeys).length - 1) % Object.keys(inputKeys).length; }
 		if(e.key == "Enter") {gameState = "controlsChange";}
 	}
 }
 function handleKeyUp(e) {
-	if(gameState=="play"){
+	if(gameState == "play"){
 		//Player 1
 		if(e.key.toUpperCase() == inputKeys.left1.toUpperCase() && player1Inputs.direction=="left") {player1Inputs.direction = "none";}
 		if(e.key.toUpperCase() == inputKeys.up1.toUpperCase()) {player1Inputs.up = false;}
@@ -151,7 +170,7 @@ function handleKeyUp(e) {
 		if(e.key.toUpperCase() == inputKeys.right2.toUpperCase() && player2Inputs.direction=="right") {player2Inputs.direction = "none";}
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = false;}
 	}
-	if(gameState=="menu") {
+	if(gameState == "menu") {
 		if(e.key == "Enter") {menuEvents[menuSelection]();}
 	}
 	if (gameState == "controls") {
@@ -165,3 +184,15 @@ function handleKeyUp(e) {
 }
 
 
+
+
+//Handle gameend
+function gameScore() {
+	gameState = "scored";
+	if(greenWins>=goalsTarget) {gameWin(0);}
+	if(blueWins>=goalsTarget) {gameWin(1);}
+}
+function gameWin(winningColor) {
+	gameState = "gameend";
+	winnerMessage = (winningColor == 0 ? "GREEN" : "BLUE") + " WINS THE GAME";
+}
