@@ -8,6 +8,8 @@ let blueWins = 0;
 let greenWins = 0;
 let obj1StaticTimer;
 let obj2StaticTimer;
+let gameendAnimationFrame = 0;
+const goalsTarget = 5;
 
 const engine = Engine.create();
 const world = engine.world;
@@ -17,6 +19,7 @@ const groundheight=1000;
 const ceilingwidth=8000
 const ceilingheight=1000;
 let winnerMessage;
+let tempWindChangeWithY;
 
 //Sizes (l, w, r) are 40
 const ballsize = 40;
@@ -24,17 +27,16 @@ const objwidth=40; const objlength=40;
 const obj2width=40; const obj2length=40;
 const Xspeed=0.6; //0.6
 const turnSpeed=Math.PI/8; //PI/8
-const Yspeed=2.4; //2.4
+const Yspeed=2.6; //2.4
 world.gravity.y=4.0; //4.0
 const restitution = 1.1;//1.1
 const ballRestitution = 0.25;//0.95
-const friction = 0.0;//2.0
+const friction = 0.5;//2.0
 const ballDensity = 0.00043 * Math.pow(40/ballsize, 2);//0.00043
 const blockDensity = 0.001 * 1600/(objwidth*objlength);//0.001
 const loss=0.0;//0.0
-const windForce = 1 * world.gravity.y/4.0;//1
-const windChangeWithY = 1.3;//1
-//Say you get 10 seconds of frozen and then you have to touch the ground to regain it
+const windForce = 1.0 * world.gravity.y/4.0;//1
+const windChangeWithY = 1.5;//1
 const maxStaticTime = 100;
 
 
@@ -48,7 +50,7 @@ function boxMove() {
   if(obj.isStatic) {obj1StaticTimer--;}
   if(Matter.Collision.collides(ground,obj)) {obj1StaticTimer = maxStaticTime;}
   Matter.Events
-  if(player1Inputs.up){
+  if(player1Inputs.up && !obj.isStatic){
     Body.setAngularVelocity(obj, turnSpeed);
     Body.setVelocity(obj, {x:obj.velocity.x, y: obj.velocity.y-Yspeed});
   }
@@ -69,7 +71,7 @@ function boxMove() {
   } 
   if(obj2.isStatic) {obj2StaticTimer--;}
   if(Matter.Collision.collides(ground,obj2)) {obj2StaticTimer = maxStaticTime;}
-  if(player2Inputs.up){
+  if(player2Inputs.up && !obj2.isStatic){
     Body.setAngularVelocity(obj2, -turnSpeed);
     Body.setVelocity(obj2, {x:obj2.velocity.x, y: obj2.velocity.y-Yspeed});
   }
@@ -109,6 +111,7 @@ function setup() {
 
 
   winnerMessage="";
+  tempWindChangeWithY = windChangeWithY + (Math.random()*0.4)-0.2
 }
 
 
@@ -132,12 +135,12 @@ function draw() {
   if(obj2.position.x<0-objwidth) { Body.setPosition(obj2, {x:820+obj2width, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
   if(obj.position.x>820+obj2width) { Body.setPosition(obj, {x:0-objwidth, y:obj.position.y});       Body.setVelocity(obj, {x:obj.velocity.x*loss, y: obj.velocity.y});}
   if(obj2.position.x>820+obj2width) { Body.setPosition(obj2, {x:0-obj2width, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
-  Body.applyForce(ball, {x:ball.position.x, y:ball.position.y}, {x:0,y:windForce*(-0.005-ball.position.y*windChangeWithY/100000)});
+  Body.applyForce(ball, {x:ball.position.x, y:ball.position.y}, {x:0,y:windForce*(-0.005-ball.position.y*tempWindChangeWithY/100000)});
 
   drawSquares();
 
-  if(ball.position.x<-20&&gameState=="play"){winnerMessage="Blue Wins"; gameState="scored"; blueWins++;}
-  if(ball.position.x>820&&gameState=="play"){winnerMessage="Green Wins"; gameState="scored"; greenWins++;}
+  if(ball.position.x<-20&&gameState=="play"){winnerMessage="Blue Scores!"; blueWins++; gameScore();}
+  if(ball.position.x>820&&gameState=="play"){winnerMessage="Green Scores!"; greenWins++; gameScore();}
 
   push();
     textSize(50);
@@ -145,18 +148,40 @@ function draw() {
     text(greenWins, 0, 80);
     textAlign(RIGHT)
     text(blueWins, 800, 80);
-  pop();
-
-  if(gameState=="menu") {drawMenu();}
+    pop();
+    
+    if(gameState=="menu") {drawMenu();}
   if(gameState=="controls") {drawControls();}
   if(gameState=="controlsChange") {drawControlsChange();}
 
 }
 function drawSquares() {
-  rectMode(CENTER);
   //Draw ground and ceiling
+  rectMode(CENTER);
   rect(ground.position.x,ground.position.y,groundwidth,groundheight);
   rect(ceiling.position.x,ceiling.position.y,ceilingwidth,ceilingheight);
+
+  //Display Winner if Match is Scored or Game is Won
+  push();
+    textSize(50);
+    fill(250,250,250);
+    textAlign(CENTER);
+    text(winnerMessage,300,200);
+  pop();
+  
+  //Display Graphic for Winning Side
+  if(gameState == "gameend") {
+    push();
+      translate(400,250);
+      rotate(gameendAnimationFrame);
+      fill(0,greenWins>=goalsTarget?255:0,blueWins>=goalsTarget?255:0);
+      rectMode(CENTER);
+      rect(0, 0, greenWins>=goalsTarget?objwidth:obj2width, greenWins>=goalsTarget?objlength:obj2length);
+    pop();
+    gameendAnimationFrame = (gameendAnimationFrame+9)%360;
+    return;
+  }
+
 
   //Draw Ball
   push();
@@ -184,10 +209,4 @@ function drawSquares() {
     rect(0, 0, objwidth, objlength);
   pop();
 
-  //Display Winner if Match is Scored
-  push();
-    textSize(50);
-    fill(250,250,250);
-    text(winnerMessage,200,200);
-  pop();
 }
