@@ -31,11 +31,14 @@ const Yspeed=2.6; //2.4
 world.gravity.y=4.0; //4.0
 const restitution = 1.1;//1.1
 const ballRestitution = 0.25;//0.95
+const ballFriction = 10;//1.9
 const friction = 0.5;//2.0
 const ballDensity = 0.00043 * Math.pow(40/ballsize, 2);//0.00043
 const blockDensity = 0.001 * 1600/(objwidth*objlength);//0.001
-const loss=0.0;//0.0
-const windForce = 1.0 * world.gravity.y/4.0;//1
+const loss=0;//0.0
+const maxWindForce = 1 * world.gravity.y/4.0;//1;
+let windForce = 0.01;
+const windForceReboundKValue = 1/3;
 const windChangeWithY = 1.5;//1
 const maxStaticTime = 100;
 
@@ -101,7 +104,7 @@ function setup() {
   World.add(world, obj2);
 
   //Adding Ball
-  ball = Bodies.circle(400,300,ballsize,{restitution:ballRestitution,friction:1.9});
+  ball = Bodies.circle(400,300,ballsize,{restitution:ballRestitution,friction:ballFriction});
   World.add(world, ball);
   Body.setDensity(ball,ballDensity);
 
@@ -135,7 +138,9 @@ function draw() {
   if(obj2.position.x<0-objwidth) { Body.setPosition(obj2, {x:820+obj2width, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
   if(obj.position.x>820+obj2width) { Body.setPosition(obj, {x:0-objwidth, y:obj.position.y});       Body.setVelocity(obj, {x:obj.velocity.x*loss, y: obj.velocity.y});}
   if(obj2.position.x>820+obj2width) { Body.setPosition(obj2, {x:0-obj2width, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
-  Body.applyForce(ball, {x:ball.position.x, y:ball.position.y}, {x:0,y:windForce*(-0.005-ball.position.y*tempWindChangeWithY/100000)});
+  Body.applyForce(ball, {x:ball.position.x, y:ball.position.y}, {x:0,y:windForce*(-0.005 - Math.max(0,ball.position.y*tempWindChangeWithY/100000) )});
+
+  windForce = windForce + windForceReboundKValue * windForce * (maxWindForce-windForce)
 
   drawSquares();
 
