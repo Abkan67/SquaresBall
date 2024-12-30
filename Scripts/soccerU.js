@@ -20,6 +20,7 @@ const ceilingwidth=8000
 const ceilingheight=1000;
 let winnerMessage;
 let tempWindChangeWithY;
+let windForce;
 
 //Sizes (l, w, r) are 40
 const ballsize = 40;
@@ -29,18 +30,19 @@ const Xspeed=0.6; //0.6
 const turnSpeed=Math.PI/8; //PI/8
 const Yspeed=2.6; //2.4
 world.gravity.y=4.0; //4.0
-const restitution = 1.1;//1.1
-const ballRestitution = 0.25;//0.95
-const ballFriction = 10;//1.9
-const friction = 0.5;//2.0
+const restitution = 0.8;//1.1
+const ballRestitution = 0.95;//0.25
+const ballFriction = 30;//1.9
+const friction = 0.00;//2.0
 const ballDensity = 0.00043 * Math.pow(40/ballsize, 2);//0.00043
 const blockDensity = 0.001 * 1600/(objwidth*objlength);//0.001
-const loss=0;//0.0
-const maxWindForce = 1 * world.gravity.y/4.0;//1;
-let windForce = 0.01;
-const windForceReboundKValue = 1/3;
-const windChangeWithY = 1.5;//1
-const maxStaticTime = 100;
+const loss=0.0;
+const maxWindForce = 1.00 * world.gravity.y/4.0;
+const minWindForce = 0.4;//0.4
+const windForceReboundKValue = 1/12;
+const windChangeWithY = 1.3;//1
+const maxStaticTime = 100;//100
+const wallsYDownSpeed = 1;//1
 
 
 function boxMove() {
@@ -53,7 +55,7 @@ function boxMove() {
   if(obj.isStatic) {obj1StaticTimer--;}
   if(Matter.Collision.collides(ground,obj)) {obj1StaticTimer = maxStaticTime;}
   Matter.Events
-  if(player1Inputs.up && !obj.isStatic){
+  if(player1Inputs.up /*&& !obj.isStatic*/){
     Body.setAngularVelocity(obj, turnSpeed);
     Body.setVelocity(obj, {x:obj.velocity.x, y: obj.velocity.y-Yspeed});
   }
@@ -74,7 +76,7 @@ function boxMove() {
   } 
   if(obj2.isStatic) {obj2StaticTimer--;}
   if(Matter.Collision.collides(ground,obj2)) {obj2StaticTimer = maxStaticTime;}
-  if(player2Inputs.up && !obj2.isStatic){
+  if(player2Inputs.up /*&& !obj2.isStatic*/){
     Body.setAngularVelocity(obj2, -turnSpeed);
     Body.setVelocity(obj2, {x:obj2.velocity.x, y: obj2.velocity.y-Yspeed});
   }
@@ -95,7 +97,9 @@ function setup() {
   //Adding Walls and Ceiling
   ceiling = Bodies.rectangle(400,40-(ceilingheight/2),ceilingwidth,ceilingheight, {isStatic:true});
   ground = Bodies.rectangle(400, 360+(groundheight/2), groundwidth, groundheight, {isStatic:true, restitution:200});
-  World.add(world, [ground,ceiling]);
+  wallLeft = Bodies.rectangle(-25,200, 80,320, {isStatic:true, restitution:2});
+  wallRight = Bodies.rectangle(825,200, 80,320, {isStatic:true, restitution:2});
+  World.add(world, [ground,ceiling, wallLeft,wallRight]);
 
   //Adding Blocks
   obj=Bodies.rectangle(100,100,objwidth,objlength, {restitution:restitution, friction:friction});
@@ -114,11 +118,9 @@ function setup() {
 
 
   winnerMessage="";
-  tempWindChangeWithY = windChangeWithY + (Math.random()*0.4)-0.2
+  tempWindChangeWithY = windChangeWithY + (Math.random()*0.4)-0.2;
+  windForce = minWindForce;
 }
-
-
-
 
 function draw() {
   background(0);
@@ -134,10 +136,10 @@ function draw() {
   if(ball.position.y<-20){Body.setPosition(ball, {x:ball.position.x,y:60});     }
   if(ball.position.y>820){Body.setPosition(ball, {x:ball.position.x,y:700});    }
 
-  if(obj.position.x<0-objwidth) {Body.setPosition(obj, {x:820+objwidth, y:obj.position.y});       Body.setVelocity(obj, {x:obj.velocity.x*loss, y: obj.velocity.y});}
-  if(obj2.position.x<0-objwidth) { Body.setPosition(obj2, {x:820+obj2width, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
-  if(obj.position.x>820+obj2width) { Body.setPosition(obj, {x:0-objwidth, y:obj.position.y});       Body.setVelocity(obj, {x:obj.velocity.x*loss, y: obj.velocity.y});}
-  if(obj2.position.x>820+obj2width) { Body.setPosition(obj2, {x:0-obj2width, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
+  if(obj.position.x<0-objwidth) {Body.setPosition(obj, {x:820+objwidth/2, y:obj.position.y});       Body.setVelocity(obj, {x:obj.velocity.x*loss, y: obj.velocity.y});}
+  if(obj2.position.x<0-objwidth) { Body.setPosition(obj2, {x:820+obj2width/2, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
+  if(obj.position.x>820+obj2width) { Body.setPosition(obj, {x:0-objwidth/2, y:obj.position.y});       Body.setVelocity(obj, {x:obj.velocity.x*loss, y: obj.velocity.y});}
+  if(obj2.position.x>820+obj2width) { Body.setPosition(obj2, {x:0-obj2width/2, y:obj2.position.y});       Body.setVelocity(obj2, {x:obj2.velocity.x*loss, y: obj.velocity.y});}
   Body.applyForce(ball, {x:ball.position.x, y:ball.position.y}, {x:0,y:windForce*(-0.005 - Math.max(0,ball.position.y*tempWindChangeWithY/100000) )});
 
   windForce = windForce + windForceReboundKValue * windForce * (maxWindForce-windForce)
@@ -153,7 +155,7 @@ function draw() {
     text(greenWins, 0, 80);
     textAlign(RIGHT)
     text(blueWins, 800, 80);
-    pop();
+  pop();
     
     if(gameState=="menu") {drawMenu();}
   if(gameState=="controls") {drawControls();}
@@ -165,6 +167,13 @@ function drawSquares() {
   rectMode(CENTER);
   rect(ground.position.x,ground.position.y,groundwidth,groundheight);
   rect(ceiling.position.x,ceiling.position.y,ceilingwidth,ceilingheight);
+
+  //Move Walls
+  Body.setPosition(wallLeft,{x:wallLeft.position.x, y:wallLeft.position.y + wallsYDownSpeed});
+  Body.setPosition(wallRight,{x:wallRight.position.x, y:wallRight.position.y + wallsYDownSpeed});
+
+  rect(wallLeft.position.x,wallLeft.position.y,80,wallLeft.area/80);
+  rect(wallRight.position.x,wallRight.position.y,80,wallRight.area/80);
 
   //Display Winner if Match is Scored or Game is Won
   push();

@@ -102,6 +102,8 @@ function reset(e) {
 	World.remove(world, ball);
 	World.remove(world, ceiling);
 	World.remove(world, ground); 
+	World.remove(world, wallLeft); 
+	World.remove(world, wallRight); 
 	setup();
 }
 
