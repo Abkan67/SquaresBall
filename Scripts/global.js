@@ -82,7 +82,7 @@ function formatKeyValue(value) {
 	}
 }
 function keyPermissibleAsControl(key) {
-	if(key == "Enter" || key == "Escape") {return false;}
+	if(key == "Enter" || key == "Escape" || key==" ") {return false;}
 	for(inputKey in Object.keys(inputKeys)) {
 		if(inputKey != controlsSelection && inputKeys[Object.keys(inputKeys)[inputKey]].toUpperCase() == key.toUpperCase()) {return false;}
 	}
@@ -156,7 +156,7 @@ function handleKeyDown(e){
 	if(gameState == "controls"){
 		if(e.key == "ArrowDown") {controlsSelection = (controlsSelection + 1) % Object.keys(inputKeys).length; }
 		if(e.key == "ArrowUp") {controlsSelection = (controlsSelection + Object.keys(inputKeys).length - 1) % Object.keys(inputKeys).length; }
-		if(e.key == "Enter") {gameState = "controlsChange";}
+		if(e.key == "Enter" || e.key==" ") {gameState = "controlsChange";}
 	}
 }
 function handleKeyUp(e) {
@@ -173,7 +173,7 @@ function handleKeyUp(e) {
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = false;}
 	}
 	if(gameState == "menu") {
-		if(e.key == "Enter") {menuEvents[menuSelection]();}
+		if(e.key == "Enter" || e.key == " ") {menuEvents[menuSelection]();}
 	}
 	if (gameState == "controls") {
 		if(e.key == "Escape") {menuSelection = 0; gameState = "menu";}
@@ -196,5 +196,5 @@ function gameScore() {
 }
 function gameWin(winningColor) {
 	gameState = "gameend";
-	winnerMessage = (winningColor == 0 ? "GREEN" : "BLUE") + " WINS THE GAME";
+	winnerMessage = (winningColor == 0 ? "GREEN" : "BLUE") + " WINS THE GAME!! Press Space";
 }

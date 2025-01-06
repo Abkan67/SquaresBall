@@ -55,7 +55,7 @@ function boxMove() {
   if(obj.isStatic) {obj1StaticTimer--;}
   if(Matter.Collision.collides(ground,obj)) {obj1StaticTimer = maxStaticTime;}
   Matter.Events
-  if(player1Inputs.up /*&& !obj.isStatic*/){
+  if(player1Inputs.up && !obj.isStatic){
     Body.setAngularVelocity(obj, turnSpeed);
     Body.setVelocity(obj, {x:obj.velocity.x, y: obj.velocity.y-Yspeed});
   }
@@ -76,7 +76,7 @@ function boxMove() {
   } 
   if(obj2.isStatic) {obj2StaticTimer--;}
   if(Matter.Collision.collides(ground,obj2)) {obj2StaticTimer = maxStaticTime;}
-  if(player2Inputs.up /*&& !obj2.isStatic*/){
+  if(player2Inputs.up && !obj2.isStatic){
     Body.setAngularVelocity(obj2, -turnSpeed);
     Body.setVelocity(obj2, {x:obj2.velocity.x, y: obj2.velocity.y-Yspeed});
   }
@@ -146,8 +146,8 @@ function draw() {
 
   drawSquares();
 
-  if(ball.position.x<-20&&gameState=="play"){winnerMessage="Blue Scores!"; blueWins++; gameScore();}
-  if(ball.position.x>820&&gameState=="play"){winnerMessage="Green Scores!"; greenWins++; gameScore();}
+  if(ball.position.x<-20&&gameState=="play"){winnerMessage="Blue Scores! Press Space"; blueWins++; gameScore();}
+  if(ball.position.x>820&&gameState=="play"){winnerMessage="Green Scores! Press Space"; greenWins++; gameScore();}
 
   push();
     textSize(50);
