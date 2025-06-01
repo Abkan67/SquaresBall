@@ -1,4 +1,4 @@
-let gameState = "menu"; //menu, scored, play
+let gameState = "menu"; //menu, scored, play, controls, controlsChange, variants
 let logo; //Logo is 57*11 pixels
 
 //Handling Menu
@@ -10,20 +10,53 @@ let menuSelection = 0;
 let menuEvents = [
 	function(){reset(); gameState = "play";},//for playing the game 
 	function(){gameState = "controls";controlsSelection = 0;}, //for going to controls
+	function(){gameState = "variants"; controlsSelection = 0;} //for selecting a variant
 ]
 function drawMenu() {
 	//To get past CORS
 	document.getElementById("defaultCanvas0").getContext("2d").drawImage(logo, 143,40,513,99);
 	push();
-		textSize(80);
+		textSize(60);
 		fill(255,255,255);
 		textAlign(CENTER);
-		text(">".repeat(menuSelection==0?1:0) + "PLAY GAME" + "<".repeat(menuSelection==0?1:0), 400, 220);
-		text(">".repeat(menuSelection==1?1:0) + "CONTROLS" + "<".repeat(menuSelection==1?1:0), 400, 320);
+		text(">".repeat(menuSelection==0?1:0) + "PLAY GAME" + "<".repeat(menuSelection==0?1:0), 400, 200);
+		text(">".repeat(menuSelection==1?1:0) + "CONTROLS" + "<".repeat(menuSelection==1?1:0), 400, 270);
+		text(">".repeat(menuSelection==2?1:0) + "VARIANTS" + "<".repeat(menuSelection==2?1:0), 400, 340);
 	pop();
 }
-
 let controlsSelection = 0;
+
+
+//Handling Variants
+let variantsList = [
+	"Classic Game",
+	"Rectangles",
+	"Balls of Steel",
+	"Low Gravity",
+	"Manic",
+	"Pong",
+	"Bouncy Castle"
+]
+function drawVariants() {
+	push();
+		textSize(50);
+		fill(255);
+		textAlign(LEFT, CENTER);
+		text(variantsList[controlsSelection], 360, 210);
+		textSize(40);
+		text(variantsList[(controlsSelection-1+variantsList.length)%variantsList.length], 320, 140);
+		text(variantsList[(controlsSelection+1)%variantsList.length], 320, 280);
+	pop();
+
+}
+function selectVariant() {
+	variantsData["Classic Game"]();
+	variantsData[variantsList[controlsSelection]]();
+	reset();
+}
+
+
+//Handling Changing Controls
 function drawControls() {
 	var key = Object.keys(inputKeys)[controlsSelection];
 	push();
@@ -134,10 +167,10 @@ function handleKeyDown(e){
 	if(gameState == "scored") {
 		if(e.key==" "){reset(); gameState="play";}
 	}
-	if(gameState == "gameend") {
+	else if(gameState == "gameend") {
 		if(e.key==" "){reset(); gameState="menu"; blueWins = 0; greenWins = 0;}
 	}
-	if(gameState == "play"){
+	else if(gameState == "play"){
 		//Player 1
 		if(e.key.toUpperCase() == inputKeys.left1.toUpperCase()) {player1Inputs.direction = "left";}
 		if(e.key.toUpperCase() == inputKeys.up1.toUpperCase()) {player1Inputs.up = true;}
@@ -149,14 +182,18 @@ function handleKeyDown(e){
 		if(e.key.toUpperCase() == inputKeys.right2.toUpperCase()) {player2Inputs.direction = "right";}
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = true;}
 	}
-	if(gameState == "menu") {
+	else if(gameState == "menu") {
 		if(e.key == "ArrowDown") {menuSelection = (menuSelection + 1) % menuEvents.length}
 		if(e.key == "ArrowUp") {menuSelection = (menuSelection - 1 + menuEvents.length) % menuEvents.length}
 	}
-	if(gameState == "controls"){
+	else if(gameState == "controls"){
 		if(e.key == "ArrowDown") {controlsSelection = (controlsSelection + 1) % Object.keys(inputKeys).length; }
 		if(e.key == "ArrowUp") {controlsSelection = (controlsSelection + Object.keys(inputKeys).length - 1) % Object.keys(inputKeys).length; }
 		if(e.key == "Enter" || e.key==" ") {gameState = "controlsChange";}
+	}
+	else if(gameState == "variants"){
+		if(e.key == "ArrowDown") {controlsSelection = (controlsSelection + 1) % variantsList.length; }
+		if(e.key == "ArrowUp") {controlsSelection = (controlsSelection + variantsList.length - 1) % variantsList.length; }
 	}
 }
 function handleKeyUp(e) {
@@ -172,13 +209,16 @@ function handleKeyUp(e) {
 		if(e.key.toUpperCase() == inputKeys.right2.toUpperCase() && player2Inputs.direction=="right") {player2Inputs.direction = "none";}
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = false;}
 	}
-	if(gameState == "menu") {
+	else if(gameState == "menu") {
 		if(e.key == "Enter" || e.key == " ") {menuEvents[menuSelection]();}
 	}
-	if (gameState == "controls") {
+	else if (gameState == "variants") {
+		if(e.key == "Enter") {selectVariant(controlsSelection); menuSelection = 0; gameState = "menu";}
+	}
+	else if (gameState == "controls") {
 		if(e.key == "Escape") {menuSelection = 0; gameState = "menu";}
 	}
-	if (gameState == "controlsChange") {
+	else if (gameState == "controlsChange") {
 		if(keyPermissibleAsControl(e.key)) {
 			inputKeys[Object.keys(inputKeys)[controlsSelection]] = e.key.toUpperCase(); gameState = "controls";
 		}
