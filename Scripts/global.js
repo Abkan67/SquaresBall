@@ -210,7 +210,7 @@ function handleKeyUp(e) {
 		if(e.key.toUpperCase() == inputKeys.down2.toUpperCase()) {player2Inputs.down = false;}
 	}
 	else if(gameState == "menu") {
-		if(e.key == "Enter" || e.key == " ") {menuEvents[menuSelection]();}
+		if(e.key == "Enter") {menuEvents[menuSelection]();}
 	}
 	else if (gameState == "variants") {
 		if(e.key == "Enter") {selectVariant(controlsSelection); menuSelection = 0; gameState = "menu";}
