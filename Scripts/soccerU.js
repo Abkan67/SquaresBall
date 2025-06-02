@@ -43,6 +43,7 @@ let windForceReboundKValue = 1/12;
 let windChangeWithY = 1.3;//1
 let maxStaticTime = 100;//100
 let wallsYDownSpeed = 1;//16
+let blueSquareBlueValue = 255; let greenSquareGreenValue = 255;
 
 
 const variantsData = {
@@ -70,9 +71,9 @@ const variantsData = {
   },
   "Rectangles": function(){objwidth= 80; obj2width= 80;},
   "Balls of Steel": function(){ballDensity= 0.00086; ballRestitution= 1.1; maxWindForce = 2;},
-  "Low Gravity": function(){gravity= 1.0; maxWindForce= 0.25; restitution = 1.3; friction = 0.05; Yspeed = 1.2;},
+  "Low Gravity": function(){world.gravity.y=0.8; maxWindForce = 0.8/4.0; restitution = 1.3; friction = 0.05; Yspeed = 1.5; turnSpeed = Math.PI/5.5;},
   "Manic": function() {turnSpeed = Math.PI/4; Xspeed = 0.8; Yspeed = 1.5; maxStaticTime = 200;},
-  "Pong": function() {objwidth = 20; obj2width = 20; objlength = 100; obj2length = 100; ballsize = 20; ballDensity*=12; maxWindForce*=3},
+  "Pong": function() {objwidth = 20; obj2width = 20; objlength = 100; obj2length = 100; ballsize = 20; ballDensity*=6; maxWindForce*=1.5; restitution = 0.4;},
   "Bouncy Castle": function() {restitution = 1.5; ballRestitution = 1.1; maxWindForce = 0.5; ballFriction = 0;}
 }
 
